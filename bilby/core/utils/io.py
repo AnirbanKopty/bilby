@@ -26,6 +26,30 @@ def check_directory_exists_and_if_not_mkdir(directory):
     Path(directory).mkdir(parents=True, exist_ok=True)
 
 
+def resolve_filename_with_transfer_fallback(filename):
+    """
+    When absolute paths are transferred using HTCondor, the absolute path is
+    replaced with the basename of the file. This function checks if the file
+    exists, if not, checks if the basename exists. If the basename exists,
+    returns the basename, otherwise returns None.
+
+    Parameters
+    ----------
+    filename: str
+        The filename to check
+
+    Returns
+    -------
+    filename: str
+        The filename, or basename, if it exists, otherwise None
+    """
+    if os.path.isfile(filename):
+        return filename
+    elif os.path.isfile(os.path.basename(filename)):
+        return os.path.basename(filename)
+    return None
+
+
 class BilbyJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         from ..prior import MultivariateGaussianDist, Prior, PriorDict

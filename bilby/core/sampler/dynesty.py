@@ -13,6 +13,7 @@ from ..utils import (
     latex_plot_format,
     logger,
     safe_file_dump,
+    resolve_filename_with_transfer_fallback
 )
 from .base_sampler import NestedSampler, Sampler, _SamplingContainer, signal_wrapper
 
@@ -250,6 +251,7 @@ class Dynesty(NestedSampler):
         logger.info(f"Checkpoint every check_point_delta_t = {check_point_delta_t}s")
 
         self.resume_file = f"{self.outdir}/{self.label}_resume.pickle"
+        self.resume_file = resolve_filename_with_transfer_fallback(self.resume_file)
         self.sampling_time = datetime.timedelta()
         self.pbar = None
 
@@ -785,6 +787,7 @@ class Dynesty(NestedSampler):
         self.sampler.pool = None
         self.sampler.M = map
         if dill.pickles(self.sampler):
+            self.resume_file = f"{self.outdir}/{self.label}_resume.pickle"
             safe_file_dump(self.sampler, self.resume_file, dill)
             logger.info(f"Written checkpoint file {self.resume_file}")
         else:
